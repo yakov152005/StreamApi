@@ -3,11 +3,11 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-
 public class MovieLibrary {
     private List<Director> directorList;
     private List<Actor> actorList;
     private List<Movie> movieList;
+    public static Scanner s = new Scanner(System.in);
 
     public MovieLibrary () {
         List<List<String>> directorsData = Utils.readFile("directors.csv");
@@ -19,8 +19,108 @@ public class MovieLibrary {
         List<List<String>> moviesData = Utils.readFile("movies.csv");
         this.movieList = createMovie(moviesData,directorList,actorList);
 
+        start();
 
+    }
 
+    public void start(){
+        boolean res = true;
+        while (res){
+            menuMain();
+            String input = s.next();
+            int choice = stringToInt(input);
+            if(choice == 0){
+                System.out.println("Exit...");
+                res = false;
+            }
+            switchCase(choice);
+        }
+    }
+
+    public int stringToInt(String input){
+        int inputInt = 1;
+        try {
+            inputInt = Integer.parseInt(input);
+        }catch (NumberFormatException e){
+            System.out.println("Invalid input.");
+            System.out.println("Default input 1.");
+        }
+        return inputInt;
+    }
+
+    public void menuMain(){
+        System.out.println("|WELCOME TO THE MOVIE LIBRARY|");
+        System.out.println("""
+                1 - Find all movies released in a specific year.
+                2 - Find all movies of a specific genre.
+                3 - Find all directors who have directed at least N movies.
+                4 - Find all actors who have appeared in movies of a specific genre.
+                5 - Find the average release year of movies for a specific director.
+                6 - Find the top N actors who have appeared in the most movies.
+                7 - Find all movies where a specific actor and director have worked together.
+                8 - Find the most common genre for each actor.
+                0 - To Exit.
+                """);
+    }
+
+    public void switchCase(int choice){
+        switch (choice){
+            case 1 -> {
+                System.out.print("Enter the desired year --> ");
+                int year = s.nextInt();
+                List<String> titleForThisYear = findMoviesByYear(year);
+                printList(titleForThisYear);
+                s.nextLine();//clear the buffer
+            }
+            case 2 ->{
+                s.nextLine();
+                System.out.print("Enter the genre you are looking for --> ");
+                String genre = s.nextLine();
+                List<String> genreList = findMoviesByGenre(genre);
+                printList(genreList);
+            }
+            case 3 ->{
+                System.out.print("Enter a number --> ");
+                int n = s.nextInt();
+                List<String> directorNList = findDirectorsWithAtLeastNMovies(n);
+                printList(directorNList);
+            }
+            case 4 ->{
+                s.nextLine();
+                System.out.print("Find actors by genre -- > ");
+                String genreActor = s.nextLine();
+                List<String> actorList = findActorsInGenre(genreActor);
+                printList(actorList);
+            }
+            case 5 ->{
+                s.nextLine();
+                System.out.print("Enter a director name --> ");
+                String directorName = s.nextLine();
+                double avg = findAverageReleaseYearForDirector(directorName);
+                System.out.println("The averege release year is: " + avg);
+            }
+            case 6 ->{
+                System.out.print("Enter a number --> ");
+                int n = s.nextInt();
+                List<String> topNActors = findTopNActors(n);
+                printList(topNActors);
+            }
+            case 7 ->{
+                s.nextLine();
+                System.out.print("Enter a actor and director name -- >");
+                String actor = s.nextLine();
+                String director = s.nextLine();
+                List<String> s = findMoviesByActorAndDirector(actor,
+                        director);
+                printList(s);
+            }
+            case 8 ->{
+                Map<String,String> mapActor = findMostCommonGenrePerActor();
+                for (Map.Entry<String,String> stringStringEntry : mapActor.entrySet()){
+                    System.out.println(stringStringEntry);
+                }
+            }
+        }
     }
 
 
@@ -209,5 +309,10 @@ public class MovieLibrary {
         return null;
     }
 
+    public void printList(List<String> list){
+        for (String s : list)
+            System.out.println(s);
+        System.out.println();
+    }
 
 }
